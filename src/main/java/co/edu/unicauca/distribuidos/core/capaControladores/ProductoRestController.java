@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unicauca.distribuidos.core.fachadaServices.DTO.ProductoDTOPeticion;
 import co.edu.unicauca.distribuidos.core.fachadaServices.DTO.ProductoDTORespuesta;
 import co.edu.unicauca.distribuidos.core.fachadaServices.services.IProductoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -36,11 +46,53 @@ public class ProductoRestController {
     public ProductoDTORespuesta consultarProducto(@PathVariable Integer id) {
         return productoService.findById(id);
     }
+    /*
+    // JSON-only endpoint (commentado). El cliente ahora siempre manda multipart/form-data
     @PostMapping("/productos")
     public ProductoDTORespuesta crearProducto(@RequestBody ProductoDTOPeticion producto) {
         ProductoDTORespuesta objProducto = null;
         objProducto = productoService.save(producto);
         return objProducto;
+    }
+    */
+
+    /**
+     * Endpoint para recibir multipart/form-data desde Angular o Postman.
+     * Debe enviarse el campo 'producto' con el JSON del ProductoDTOPeticion
+     * y opcionalmente 'imagen' con el archivo.
+     * Content-Type: multipart/form-data
+     */
+    @PostMapping(value = "/productos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProductoDTORespuesta crearProductoConImagen(@RequestPart("producto") String productoJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ProductoDTOPeticion producto = mapper.readValue(productoJson, ProductoDTOPeticion.class);
+
+        if (imagen != null && !imagen.isEmpty()) {
+            // Carpeta uploads en la raíz del proyecto (puedes cambiarla a una ruta configurable)
+            Path uploadDir = Paths.get("uploads").toAbsolutePath();
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            // Generar nombre único para evitar colisiones
+            String original = imagen.getOriginalFilename();
+            String ext = "";
+            if (original != null && original.contains(".")) {
+                ext = original.substring(original.lastIndexOf('.'));
+            }
+            String filename = UUID.randomUUID().toString() + ext;
+            Path target = uploadDir.resolve(filename);
+
+            // Guardar archivo
+            imagen.transferTo(target.toFile());
+
+            // Guardar la ruta relativa o absoluta según prefieras. Aquí guardamos ruta relativa.
+            producto.setImagen("uploads/" + filename);
+        }
+
+        return productoService.save(producto);
     }
     
     @PutMapping("/productos/{id}")

@@ -1,0 +1,183 @@
+{
+	"info": {
+		"_postman_id": "406899ef-8f63-44ef-9eb4-b42d06bc901b",
+		"name": "CRUD productos categoria",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13395433",
+		"_collection_link": "https://unicauca-9050.postman.co/workspace/Ingenier%C3%ADa-del-Software-III~cd6b8221-e6ff-42ea-a146-520599387eaa/collection/13395433-406899ef-8f63-44ef-9eb4-b42d06bc901b?action=share&source=collection_link&creator=13395433"
+	},
+	"item": [
+		{
+			"name": "Listar productos",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/productos",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear producto",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{        \r\n        \"nombre\": \"ProductoEjemplo\",\r\n        \"descripcion\": \"Descripción del producto\",\r\n        \"estado\": false,\r\n        \"precio\": 100,\r\n        \"imagen\": \"ruta:imagenEjemplo.jpg\",\r\n        \"objCategoria\": {\r\n            \"id\": 1            \r\n}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:5000/api/productos",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear producto con imagen (multipart)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "producto",
+							"value": "{\"nombre\":\"ProductoConImagen\",\"descripcion\":\"Descripción con imagen\",\"objCategoria\":{\"id\":1},\"precio\":25000,\"imagen\":\"\"}",
+							"type": "text"
+						},
+						{
+							"key": "imagen",
+							"type": "file",
+							"src": "<path-to-your-image-on-local>"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:5000/api/productos",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ConsultarProducto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/productos/5",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar producto",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/productos/2",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ActualizarProducto",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{        \r\n        \"nombre\": \"ProductoEjemplo\",\r\n        \"descripcion\": \"Descripción del producto\",\r\n        \"estado\": false,\r\n        \"precio\": 100,\r\n        \"imagen\": \"ruta:imagenEjemplo.jpg\",\r\n        \"objCategoria\": {\r\n            \"id\": 1            \r\n        }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:5000/api/productos/4",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"productos",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar categorias",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/categorias",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"categorias"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
