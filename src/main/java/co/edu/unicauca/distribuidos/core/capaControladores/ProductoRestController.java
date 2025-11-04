@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unicauca.distribuidos.core.fachadaServices.DTO.ProductoDTOPeticion;
 import co.edu.unicauca.distribuidos.core.fachadaServices.DTO.ProductoDTORespuesta;
 import co.edu.unicauca.distribuidos.core.fachadaServices.services.IProductoService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -39,12 +40,29 @@ public class ProductoRestController {
 
     @GetMapping("/productos")
     public List<ProductoDTORespuesta> listarProductos() {
-        return productoService.findAll();
+        List<ProductoDTORespuesta> lista = productoService.findAll();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        for (ProductoDTORespuesta p : lista) {
+            if (p != null && p.getImagen() != null && !p.getImagen().isEmpty()) {
+                // Si la ruta ya contiene http lo dejamos, si no la convertimos a URL pública
+                if (!p.getImagen().toLowerCase().startsWith("http")) {
+                    p.setImagen(baseUrl + "/" + p.getImagen());
+                }
+            }
+        }
+        return lista;
     }
 
     @GetMapping("/productos/{id}")
     public ProductoDTORespuesta consultarProducto(@PathVariable Integer id) {
-        return productoService.findById(id);
+        ProductoDTORespuesta p = productoService.findById(id);
+        if (p != null && p.getImagen() != null && !p.getImagen().isEmpty()) {
+            if (!p.getImagen().toLowerCase().startsWith("http")) {
+                String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+                p.setImagen(baseUrl + "/" + p.getImagen());
+            }
+        }
+        return p;
     }
     /*
     // JSON-only endpoint (commentado). El cliente ahora siempre manda multipart/form-data
@@ -92,7 +110,14 @@ public class ProductoRestController {
             producto.setImagen("uploads/" + filename);
         }
 
-        return productoService.save(producto);
+        ProductoDTORespuesta creado = productoService.save(producto);
+        if (creado != null && creado.getImagen() != null && !creado.getImagen().isEmpty()) {
+            if (!creado.getImagen().toLowerCase().startsWith("http")) {
+                String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+                creado.setImagen(baseUrl + "/" + creado.getImagen());
+            }
+        }
+        return creado;
     }
     
     @PutMapping("/productos/{id}")
