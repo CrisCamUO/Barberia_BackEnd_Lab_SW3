@@ -77,7 +77,10 @@ public class ProductoServiceImpl implements IProductoService {
             ProductoEntity objProductoDatosNuevos = productoEntityOp.get();
             objProductoDatosNuevos.setNombre(producto.getNombre());
             objProductoDatosNuevos.setPrecio(producto.getPrecio());
-            objProductoDatosNuevos.setImagen(producto.getImagen());
+            // Solo actualizar imagen si se envió una nueva imagen (no nula ni vacía)
+            if (producto.getImagen() != null && !producto.getImagen().isEmpty()) {
+                objProductoDatosNuevos.setImagen(producto.getImagen());
+            }
             // Asegurar que la categoría exista antes de setear el id
             if (producto.getObjCategoria() != null) {
                 if (objProductoDatosNuevos.getCategoria() == null) {

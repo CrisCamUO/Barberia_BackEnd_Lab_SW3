@@ -120,13 +120,45 @@ public class ProductoRestController {
         return creado;
     }
     
-    @PutMapping("/productos/{id}")
-    public ProductoDTORespuesta actualizarProducto(@PathVariable Integer id, @RequestBody ProductoDTOPeticion producto) {
+    @PutMapping(value = "/productos/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProductoDTORespuesta actualizarProducto(@PathVariable Integer id,
+            @RequestPart("producto") String productoJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ProductoDTOPeticion producto = mapper.readValue(productoJson, ProductoDTOPeticion.class);
+
+        if (imagen != null && !imagen.isEmpty()) {
+            Path uploadDir = Paths.get("uploads").toAbsolutePath();
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            String original = imagen.getOriginalFilename();
+            String ext = "";
+            if (original != null && original.contains(".")) {
+                ext = original.substring(original.lastIndexOf('.'));
+            }
+            String filename = UUID.randomUUID().toString() + ext;
+            Path target = uploadDir.resolve(filename);
+
+            imagen.transferTo(target.toFile());
+
+            // Guardar la ruta relativa en el DTO para que el servicio la persista
+            producto.setImagen("uploads/" + filename);
+        }
+
         ProductoDTORespuesta objProducto = null;
         ProductoDTORespuesta productoActual = productoService.findById(id);
         // Solo actualizar si el producto existe
         if (productoActual != null) {
             objProducto = productoService.update(id, producto);
+            if (objProducto != null && objProducto.getImagen() != null && !objProducto.getImagen().isEmpty()) {
+                if (!objProducto.getImagen().toLowerCase().startsWith("http")) {
+                    String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+                    objProducto.setImagen(baseUrl + "/" + objProducto.getImagen());
+                }
+            }
         }
         return objProducto;
     }
