@@ -11,6 +11,7 @@ public class ProductoDTOPeticion { //Recibe los datos necesarios para crear, act
     private CategoriaDTOPeticion objCategoria;
     private Double precio;
     private String imagen;
+    private Boolean estado;
 
     public ProductoDTOPeticion() {
 

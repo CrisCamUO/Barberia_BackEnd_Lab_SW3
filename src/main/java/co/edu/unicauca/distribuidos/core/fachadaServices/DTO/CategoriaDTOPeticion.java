@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoriaDTOPeticion {
-    private Integer id;     
+    private Integer id; 
+    private String nombre;    
 }
